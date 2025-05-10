@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
 import easyocr
@@ -32,12 +31,10 @@ if uploaded_file is not None:
         st.warning("لم يتم العثور على باركود في الصورة.")
 
     # محاولة قراءة الاسم باستخدام OCR
-  import easyocr
-reader = easyocr.Reader(['en', 'ar'])
-result = reader.readtext(image)
-extracted_name = " ".join([res[1] for res in result]).strip()
+    reader = easyocr.Reader(['en', 'ar'])
+    result = reader.readtext(image)
+    extracted_name = " ".join([res[1] for res in result]).strip()
 
-    
     # البحث في قاعدة البيانات
     matched_row = None
     if barcode_data:
@@ -65,3 +62,4 @@ extracted_name = " ".join([res[1] for res in result]).strip()
             st.success("الدواء ساري الصلاحية.")
     else:
         st.error("❌ الدواء غير موجود في قاعدة البيانات.")
+
