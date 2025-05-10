@@ -1,6 +1,7 @@
 streamlit
 pandas
 openpyxl
-pytesseract
+easyocr
 Pillow
-numpy==1.23.5
+numpy
+torch
