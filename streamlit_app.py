@@ -5,6 +5,7 @@ import easyocr
 from PIL import Image
 from pyzbar.pyzbar import decode
 from datetime import datetime
+import numpy as np
 
 st.set_page_config(page_title="نظام التحقق من الأدوية", layout="centered")
 
@@ -31,10 +32,10 @@ if uploaded_file is not None:
         st.warning("لم يتم العثور على باركود في الصورة.")
 
     # محاولة قراءة الاسم باستخدام OCR
-  reader = easyocr.Reader(['en', 'ar'])
-result = reader.readtext(image)
-extracted_name = " ".join([res[1] for res in result]).strip()
-
+    reader = easyocr.Reader(['en', 'ar'])
+    result = reader.readtext(np.array(image))
+    extracted_name = " ".join([res[1] for res in result]).strip()
+    st.info(f"الاسم المستخرج باستخدام OCR: {extracted_name}")
 
     # البحث في قاعدة البيانات
     matched_row = None
@@ -63,4 +64,3 @@ extracted_name = " ".join([res[1] for res in result]).strip()
             st.success("الدواء ساري الصلاحية.")
     else:
         st.error("❌ الدواء غير موجود في قاعدة البيانات.")
-Add utf-8 encoding declaration
