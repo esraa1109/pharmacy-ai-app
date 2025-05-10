@@ -2,6 +2,7 @@ streamlit
 pandas
 openpyxl
 easyocr
+numpy>=1.26.0
 Pillow
-numpy
-torch
+opencv-python
+pytesseract
