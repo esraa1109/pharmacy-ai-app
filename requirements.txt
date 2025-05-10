@@ -1,8 +1,7 @@
 streamlit
 pandas
-opencv-python-headless
+openpyxl
 easyocr
-numpy>=1.26.0
 Pillow
-opencv-python
-fix: use headless OpenCV for Streamlit compatibility
+numpy==1.23.5
+opencv-python-headless
