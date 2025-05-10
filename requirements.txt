@@ -1,9 +1,7 @@
-with open("requirements.txt", "w") as f:
-    f.write("""streamlit
+streamlit
 pandas
 openpyxl
 easyocr
 numpy==1.23.5
 Pillow
 opencv-python
-""")
