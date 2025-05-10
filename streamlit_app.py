@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
-import pytesseract
+import easyocr
+
 from PIL import Image
 from pyzbar.pyzbar import decode
 from datetime import datetime
