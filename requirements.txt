@@ -1,7 +1,6 @@
 streamlit
 pandas
 openpyxl
-easyocr
+pytesseract
 Pillow
 numpy==1.23.5
-opencv-python-headless
