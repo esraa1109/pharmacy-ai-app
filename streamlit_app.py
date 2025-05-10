@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
 import easyocr
 from PIL import Image
 from pyzbar.pyzbar import decode
 from datetime import datetime
-import numpy as np
 
 st.set_page_config(page_title="نظام التحقق من الأدوية", layout="centered")
 
