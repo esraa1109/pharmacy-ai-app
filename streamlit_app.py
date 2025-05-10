@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
 import easyocr
@@ -63,3 +63,4 @@ extracted_name = " ".join([res[1] for res in result]).strip()
             st.success("الدواء ساري الصلاحية.")
     else:
         st.error("❌ الدواء غير موجود في قاعدة البيانات.")
+Add utf-8 encoding declaration
