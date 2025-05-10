@@ -1,7 +1,7 @@
 
 import streamlit as st
 import pandas as pd
-import pytesseract
+import easyocr
 from PIL import Image
 from pyzbar.pyzbar import decode
 from datetime import datetime
@@ -31,8 +31,10 @@ if uploaded_file is not None:
         st.warning("لم يتم العثور على باركود في الصورة.")
 
     # محاولة قراءة الاسم باستخدام OCR
-    extracted_name = pytesseract.image_to_string(image, lang="eng+ara").strip()
-    st.info(f"الاسم المستخرج باستخدام OCR: {extracted_name}")
+  reader = easyocr.Reader(['en', 'ar'])
+result = reader.readtext(image)
+extracted_name = " ".join([res[1] for res in result]).strip()
+
 
     # البحث في قاعدة البيانات
     matched_row = None
