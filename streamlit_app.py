@@ -1,35 +1,28 @@
-# Load database with caching and validation
-@st.cache_data
-def load_database(file_path):
-    try:
-        data = pd.read_excel(file_path)
-        required_columns = {"باركود", "اسم الدواء", "الشركة", "السعر", "تاريخ الانتهاء"}
-        if not required_columns.issubset(data.columns):
-            raise ValueError("Missing required columns")
-        return data
-    except Exception as e:
-        st.error(f"❌ خطأ أثناء تحميل قاعدة البيانات: {e}")
-        return pd.DataFrame()
+# -*- coding: utf-8 -*-
+import streamlit as st
+import pandas as pd
+import easyocr
+from PIL import Image
+from pyzbar.pyzbar import decode
+from datetime import datetime
+import numpy as np
 
-df = load_database("pharmacy_database.xlsx")
-if df.empty:
-    st.stop()
+st.set_page_config(page_title="نظام التحقق من الأدوية", layout="centered")
 
-# Initialize OCR reader once and cache it
-@st.cache_resource
-def get_ocr_reader():
-    return easyocr.Reader(['en', 'ar'])
+st.title("نظام ذكي للتحقق من الأدوية")
+st.write("ارفع صورة للدواء تحتوي على الباركود أو الاسم، وسيتم التحقق من صلاحية وتسجيل الدواء.")
 
-reader = get_ocr_reader()
+# تحميل قاعدة بيانات الأدوية
+df = pd.read_excel("pharmacy_database.xlsx")
 
-# Image processing
+# رفع الصورة
+uploaded_file = st.file_uploader("ارفع صورة الدواء", type=["png", "jpg", "jpeg"])
+
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    image = ImageOps.exif_transpose(image)  # Handle orientation
-    image.thumbnail((1024, 1024))  # Resize if needed
     st.image(image, caption="الصورة المرفوعة", use_column_width=True)
 
-    # Decode barcode and OCR text
+    # محاولة قراءة الباركود
     barcode_data = None
     barcodes = decode(image)
     if barcodes:
@@ -38,36 +31,36 @@ if uploaded_file is not None:
     else:
         st.warning("لم يتم العثور على باركود في الصورة.")
 
+    # محاولة قراءة الاسم باستخدام OCR
+    reader = easyocr.Reader(['en', 'ar'])
     result = reader.readtext(np.array(image))
     extracted_name = " ".join([res[1] for res in result]).strip()
     st.info(f"الاسم المستخرج باستخدام OCR: {extracted_name}")
 
-    # Match and validate
-    if barcode_data or extracted_name:
-        matched_row = df[
-            (df["باركود"] == barcode_data) | 
-            (df["اسم الدواء"].str.contains(extracted_name, case=False, na=False))
-        ]
-    else:
-        matched_row = pd.DataFrame()
+    # البحث في قاعدة البيانات
+    matched_row = None
+    if barcode_data:
+        matched_row = df[df["باركود"] == barcode_data]
+    if matched_row is None or matched_row.empty:
+        matched_row = df[df["اسم الدواء"].str.contains(extracted_name, case=False, na=False)]
 
-    if not matched_row.empty:
+    # عرض النتائج
+    if matched_row is not None and not matched_row.empty:
         row = matched_row.iloc[0]
         st.success("✅ الدواء موجود في قاعدة البيانات")
         st.write("**اسم الدواء:**", row["اسم الدواء"])
         st.write("**الشركة:**", row["الشركة"])
         st.write("**السعر:**", row["السعر"])
-        try:
-            expiry_date = pd.to_datetime(row["تاريخ الانتهاء"], errors='coerce')
-            if pd.isnull(expiry_date):
-                st.error("⚠️ تاريخ الانتهاء غير صالح.")
-            elif expiry_date < datetime.today():
-                st.error("⚠️ الدواء منتهي الصلاحية!")
-            elif (expiry_date - datetime.today()).days < 60:
-                st.warning("تنبيه: الدواء قارب على الانتهاء.")
-            else:
-                st.success("الدواء ساري الصلاحية.")
-        except Exception:
-            st.error("⚠️ حدث خطأ أثناء التحقق من تاريخ الانتهاء.")
+        st.write("**تاريخ الانتهاء:**", row["تاريخ الانتهاء"])
+
+        # التحقق من الصلاحية
+        expiry_date = pd.to_datetime(row["تاريخ الانتهاء"])
+        today = datetime.today()
+        if expiry_date < today:
+            st.error("⚠️ الدواء منتهي الصلاحية!")
+        elif (expiry_date - today).days < 60:
+            st.warning("تنبيه: الدواء قارب على الانتهاء.")
+        else:
+            st.success("الدواء ساري الصلاحية.")
     else:
         st.error("❌ الدواء غير موجود في قاعدة البيانات.")
